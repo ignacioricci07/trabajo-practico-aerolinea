@@ -66,7 +66,7 @@ public class Aerolinea implements IAerolinea {
             throw new IllegalArgumentException("La longitud de precios y cantAsientos debe ser 2.");
         }
 
-        // Crear asientos
+        // Crear asiento
         Map<Integer, String> asientos = new HashMap<>();
         int numeroAsiento = 1;
         

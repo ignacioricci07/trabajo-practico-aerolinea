@@ -5,9 +5,9 @@ public class Asiento {
 	int numero;
 	Pasajero pasajero;
 	boolean disponible;
-	int seccion;
+	String seccion;
 	
-	public Asiento(int numero, int seccion) {
+	public Asiento(int numero, String seccion) {
 		this.numero = numero;
 		this.seccion = seccion;
 		this.disponible = true;
@@ -16,6 +16,10 @@ public class Asiento {
 	
 	public boolean estaDisponible() {
 		return disponible;
+	}
+
+	public String getClase(){
+		return seccion;
 	}
 
 }
