@@ -22,9 +22,9 @@ public class Aerolinea {
 		this.clientes.add(cliente);
 	}
 	
-	public void registrarAeropuerto(String nombreAeropuerto, String lugar, String direccion) {
+	public void registrarAeropuerto(String nombreAeropuerto, String lugar) {
 		Aeropuerto aeropuerto = new Aeropuerto(nombreAeropuerto, lugar, direccion);
-		this.aeropuertos.add(aeropuerto);
+		this.aeropuertos.add(aeropuerto); //AAAAAAAAAAA
 	}
 	
 	public void crearVueloNacional(int cantidadAsientos, int tripulantes, String horaSalida, Aeropuerto aeropuertoSalida, String horaLlegada, Aeropuerto aeropuertoLlegada, int maxPasajerosSeccion1, int maxPasajerosSeccion2, Destino destinosNac) {
