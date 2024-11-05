@@ -42,8 +42,8 @@ public class Aerolinea {
 	    this.vuelos.add(vuelo);
 	}
 	
-	public List<Asiento> consultarAsientosDisponibles(String codigoVuelo){
-		List<Asiento> asientosDisponibles= new ArrayList<Asiento>();
+	public Map<Integer, String> consultarAsientosDisponibles(String codigoVuelo){
+		Map<Integer, Stirng> asientosDisponibles= new HashMap<>();
 		if(codigoVuelo==null) {
 			return asientosDisponibles;
 		}
