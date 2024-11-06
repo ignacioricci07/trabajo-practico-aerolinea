@@ -2,8 +2,9 @@ package tp;
 
 import java.util.ArrayList;
 import java.util.List;
-
-public class Aerolinea {
+import java.util.Map;
+import java.util.HashMap;
+public class Aerolinea implements IAerolinea {
 
 	String  CUIT;
 	String nombre;
@@ -11,7 +12,7 @@ public class Aerolinea {
 	List<Cliente> clientes;
 	List<Vuelo> vuelos;
 	
-	public Aerolinea (Stirng nombre, int CUIT) {
+	public Aerolinea (String nombre, int CUIT) {
 		this.nombre = nombre;
 		this.CUIT = CUIT;
 		
@@ -43,7 +44,7 @@ public class Aerolinea {
 	}
 	
 	public Map<Integer, String> consultarAsientosDisponibles(String codigoVuelo){
-		Map<Integer, Stirng> asientosDisponibles= new HashMap<>();
+		Map<Integer, String> asientosDisponibles= new HashMap<>();
 		if(codigoVuelo==null) {
 			return asientosDisponibles;
 		}
