@@ -8,20 +8,22 @@ import java.util.Map;
 
 public abstract class Vuelo {
 		
-		String origen;
-		Date fecha;
-		String codigo;
-		String destino;
-		List<Pasajero> pasajeros;
-		Map<Integer, Asiento> asientos;
+		private String codigo;
+		private Date fecha;
+		private Aeropuerto origen;
+		private Aeropuerto destino;
+		private int tripulantes;
+		private List<Pasajero> pasajeros;
+		private Map<Integer, String> asientos;
 		
 		
 		
-	public Vuelo (String origen, String destino, String fecha, int tripulantes, String horaSalida, Aeropuerto AeropuertoSalida,
-			String horaLlegada, Aeropuerto aeropuertoLlegada) {
+	public Vuelo (String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes) {
 		this.codigo = codigo;
+		this.fecha = fecha;
+		this.origen = origen;
         this.destino = destino;
-        this.horaLlegada = horaLlegada;
+		this.tripulantes = tripulantes;
         this.pasajeros = new ArrayList<>();
         this.asientos = new HashMap<>();
 	}

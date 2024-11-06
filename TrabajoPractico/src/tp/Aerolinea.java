@@ -1,58 +1,197 @@
 package tp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+
 public class Aerolinea implements IAerolinea {
 
-	String  CUIT;
-	String nombre;
-	List<Aeropuerto> aeropuertos;
-	List<Cliente> clientes;
-	List<Vuelo> vuelos;
+	private String  cuit;
+	private String nombre;
+	private Map<String, Aeropuerto> aeropuertos;
+	private Map<Integer, Cliente> clientes;
+	private Map<String, Vuelo> vuelos;
+	private int numeroVueloPublico;
+	private int numeroVueloPrivado;
+	private Map<Integer,Integer> pasajes;
+
 	
-	public Aerolinea (String nombre, int CUIT) {
+	public Aerolinea (String nombre, String cuit) {
 		this.nombre = nombre;
-		this.CUIT = CUIT;
+		
+		this.cuit = cuit;
+		this.aeropuertos = new HashMap<>();
+		this.clientes = new HashMap<>();
+		this.vuelos = new HashMap<>();
+		this.numeroVueloPublico = 100;
+		this.numeroVueloPrivado = 100;
+		this.pasajes= new HashMap<>();
+	}
+	
+	@Override
+	public void registrarCliente(int dni, String nombre, String telefono) {
+        if (!clientes.containsKey(dni)) { 
+            Cliente cliente = new Cliente(dni, nombre, telefono);
+            clientes.put(dni, cliente); 
+        } else {
+            System.out.println("El cliente ya está registrado.");
+        }
+    }
+	
+
+	@Override
+	public void registrarAeropuerto(String nombre, String pais, String provincia, String direccion) {
+        if (!aeropuertos.containsKey(nombre)) {
+            Aeropuerto aeropuerto = new Aeropuerto(nombre, pais, provincia, direccion);
+            aeropuertos.put(nombre, aeropuerto);
+            System.out.println("Aeropuerto registrado: " + nombre);
+        } else {
+            System.out.println("El aeropuerto con el nombre '" + nombre + "' ya está registrado.");
+        }
+    }
+
+	@Override
+	public String registrarVueloPublicoNacional(String origen, String destino, String fecha, int tripulantes,
+                                                double valorRefrigerio, double[] precios, int[] cantAsientos) {
+        // Validación de aeropuertos
+        Aeropuerto aeropuertoOrigen = aeropuertos.get(origen);
+        Aeropuerto aeropuertoDestino = aeropuertos.get(destino);
+
+        if (aeropuertoOrigen == null || aeropuertoDestino == null) {
+            throw new IllegalArgumentException("Origen o destino no registrado en la aerolínea.");
+        }
+        if (!"Argentina".equalsIgnoreCase(aeropuertoOrigen.pais) || !"Argentina".equalsIgnoreCase(aeropuertoDestino.pais)) {
+            throw new IllegalArgumentException("El origen y destino deben estar en Argentina.");
+        }
+
+        // Validación de los arrays de asientos y precios
+        if (precios.length != 2 || cantAsientos.length != 2) {
+            throw new IllegalArgumentException("La longitud de precios y cantAsientos debe ser 2.");
+        }
+
+        // Crear asiento
+        Map<Integer, String> asientos = new HashMap<>();
+        int numeroAsiento = 1;
+        
+        // Asientos de clase Turista
+        for (int i = 0; i < cantAsientos[0]; i++) {
+            asientos.put(numeroAsiento++, "Turista");
+        }
+        
+        // Asientos de clase Ejecutivo
+        for (int i = 0; i < cantAsientos[1]; i++) {
+            asientos.put(numeroAsiento++, "Ejecutivo");
+        }
+
+        // Crear el vuelo
+        String codigoVuelo = numeroVueloPublico + "-PUB";
+        VueloNacional vuelo = new VueloNacional(codigoVuelo, fecha, aeropuertoOrigen, aeropuertoDestino, tripulantes,
+                                                 valorRefrigerio, precios, asientos);
+
+        // Registrar el vuelo y actualizar el contador
+        vuelos.put(codigoVuelo, vuelo);
+        numeroVueloPublico++; // Incrementar el número para el próximo vuelo
+
+        return codigoVuelo;
+    }
+
+	@Override
+	public String registrarVueloPublicoInternacional(String origen, String destino, String fecha, int tripulantes,
+			double valorRefrigerio, int cantRefrigerios, double[] precios, int[] cantAsientos, String[] escalas) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'registrarVueloPublicoInternacional'");
+	}
+
+	@Override
+	public String VenderVueloPrivado(String origen, String destino, String fecha, int tripulantes, double precio,
+			int dniComprador, int[] acompaniantes) {
+			
+        LocalDate fechaSalida = LocalDate.parse(fecha);
+        LocalDate fechaActual = LocalDate.now();
+        
+        if (fechaSalida.isBefore(fechaActual)) {
+            throw new Exception("La fecha de salida debe ser posterior a la fecha actual.");
+        }
+        
+     
+        if (origen == null || destino == null || origen.isEmpty() || destino.isEmpty()) {
+            throw new Exception("El aeropuerto de origen y destino no pueden estar vacíos.");
+        }
+        
+    
+        int totalPasajeros = 1 + acompaniantes.length;
+        
+        int capacidadJet = 10; 
+        int cantidadJets = (int) Math.ceil((double) totalPasajeros / capacidadJet); // math.ceil redondea el resultado para arriba
+
+   
+        double costoTotal = cantidadJets * precio;
+        
+        String codigoVuelo = numeroVueloPrivado + "-PRI";
+        numeroVueloPrivado++; 
+
+        return codigoVuelo;
+    }
+
 		
 	}
-	
-	public void registrarCliente(String nombreCliente, int telefono, int DNI) {
-		Cliente cliente = new Cliente(nombreCliente, telefono, DNI);
-		this.clientes.add(cliente);
-	}
-	
-	public void registrarAeropuerto(String nombreAeropuerto, String lugar) {
-		Aeropuerto aeropuerto = new Aeropuerto(nombreAeropuerto, lugar, direccion);
-		this.aeropuertos.add(aeropuerto); //AAAAAAAAAAA
-	}
-	
-	public void crearVueloNacional(int cantidadAsientos, int tripulantes, String horaSalida, Aeropuerto aeropuertoSalida, String horaLlegada, Aeropuerto aeropuertoLlegada, int maxPasajerosSeccion1, int maxPasajerosSeccion2, Destino destinosNac) {
-	    Vuelo vuelo = new Vuelo(cantidadAsientos, tripulantes, horaSalida, aeropuertoSalida, horaLlegada, aeropuertoLlegada, maxPasajerosSeccion1, maxPasajerosSeccion2, destinosNac);
-	    this.vuelos.add(vuelo);
-	}
-	
-	public void crearVueloInternacional(int cantidadAsientos, int tripulantes, String horaSalida, Aeropuerto aeropuertoSalida, String horaLlegada, Aeropuerto aeropuertoLlegada, int maxPasajerosSeccion1, int maxPasajerosSeccion2, int maxPasajerosSeccion3, List<String> escalas, int cantidadRefrigerios, Destino destinosInter) {
-	    Vuelo vuelo = new Vuelo(cantidadAsientos, tripulantes, horaSalida, aeropuertoSalida, horaLlegada, aeropuertoLlegada, maxPasajerosSeccion1, maxPasajerosSeccion2, maxPasajerosSeccion3, escalas, cantidadRefrigerios, destinosInter);
-	    this.vuelos.add(vuelo);
-	}
-	
-	public void crearVueloPrivado(Cliente comprador, List<Cliente> pasajeros, String destino, int tripulantes, String horaSalida, Aeropuerto aeropuertoSalida, String horaLlegada, Aeropuerto aeropuertoLlegada, double precioPorJet, Destino destinosNac) {
-	    Vuelo vuelo = new Vuelo(comprador, pasajeros, destino, tripulantes, horaSalida, aeropuertoSalida, horaLlegada, aeropuertoLlegada, precioPorJet, destinosNac);
-	    this.vuelos.add(vuelo);
-	}
-	
-	public Map<Integer, String> consultarAsientosDisponibles(String codigoVuelo){
-		Map<Integer, String> asientosDisponibles= new HashMap<>();
-		if(codigoVuelo==null) {
-			return asientosDisponibles;
+
+	@Override
+	public Map<Integer, String> asientosDisponibles(String codVuelo) {
+		Map<Integer, String> losasientosDisponibles= new HashMap<>();
+		if(codVuelo==null) {
+			return losasientosDisponibles;
 		}
 		for(Vuelo vuelo:this.vuelos) {
-			if(vuelo.getCodigo().equals(codigoVuelo)) {
+			if(vuelo.getCodigo().equals(codVuelo)) {
 				return vuelo.consultarAsientosDisponibles();
 			}
 		}
+	}
+
+	@Override
+	public int venderPasaje(int dni, String codVuelo, int nroAsiento, boolean aOcupar) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'venderPasaje'");
+	}
+
+	@Override
+	public List<String> consultarVuelosSimilares(String origen, String destino, String Fecha) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'consultarVuelosSimilares'");
+	}
+
+	@Override
+	public void cancelarPasaje(int dni, String codVuelo, int nroAsiento) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'cancelarPasaje'");
+	}
+
+	@Override
+	public void cancelarPasaje(int dni, int codPasaje) {
+
+		if (pasajes.containsKey(codPasaje) && pasajes.get(codPasaje) == dni) {
+            pasajes.remove(codPasaje); 
+		}
+	}
+	
+	@Override
+	public List<String> cancelarVuelo(String codVuelo) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'cancelarVuelo'");
+	}
+
+	@Override
+	public double totalRecaudado(String destino) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'totalRecaudado'");
+	}
+
+	@Override
+	public String detalleDeVuelo(String codVuelo) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'detalleDeVuelo'");
 	}
 	
 	
