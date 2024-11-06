@@ -1,5 +1,6 @@
 package tp;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,14 +14,16 @@ public abstract class Vuelo {
 		private Aeropuerto origen;
 		private Aeropuerto destino;
 		private int tripulantes;
-		private List<Pasajero> pasajeros;
-		private Map<Integer, String> asientos;
+		private List<Cliente> pasajeros;
+		private Map<Integer, Asiento> asientos;
 		private double valorRefrigerio;
     	private double[] precios;
 		
+
 		
 		
-	public Vuelo (String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes, double valorRefrigerio, double[] precios, Map<Integer, String> asientos) {
+		
+	public Vuelo (String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes, double valorRefrigerio, double[] precios, Map<Integer, Asiento> asientos) {
 		this.codigo = codigo;
 		this.fecha = fecha;
 		this.origen = origen;
@@ -31,20 +34,29 @@ public abstract class Vuelo {
         this.pasajeros = new ArrayList<>();
         this.asientos = new HashMap<>();
 	}
-		
-	public Map<Integer, String> consultarAsientosDisponibles(){
-		Map<Integer, String> asientosDisponibles = new HashMap<>(); 
-		this.asientos.forEach((numeroAsiento, asiento) -> {
-			if(asiento.estaDisponible()) {
-				asientosDisponibles.put(numeroAsiento, asiento.getClase());
-			}
-		});
-		return asientosDisponibles;
-	}
+
+	public void agregarPasajero(Cliente cliente) {
+        if (!pasajeros.contains(cliente)) {
+            pasajeros.add(cliente);
+        }
+    }
+
+    public List<Cliente> getPasajeros() {
+        return pasajeros;
+    }
 	
 	public  String getCodigo() {
 		return codigo;
 	}
 
+	public Map<Integer, Asiento> getAsientos() {
+        return asientos;
+    }
+
+	@Override
+    public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return codigo + " - " + origen.getNombre() + " - " + destino.getNombre() + " - " + sdf.format(fecha);
+    }
 	
 }

@@ -18,6 +18,9 @@ public class Aerolinea implements IAerolinea {
 	private Map<String, Vuelo> vuelos;
 	private int numeroVueloPublico;
 	private int numeroVueloInternacional;
+	private int numeroVueloPrivado;
+	private Map<Integer, Pasaje> pasajes = new HashMap<>();
+	
 
 	
 	public Aerolinea (String nombre, String cuit) {
@@ -28,6 +31,8 @@ public class Aerolinea implements IAerolinea {
 		this.vuelos = new HashMap<>();
 		this.numeroVueloPublico = 100;
 		this.numeroVueloInternacional = 100;
+		this.numeroVueloPrivado = 100;
+		this.pasajes = new HashMap<>();
 		
 	}
 	
@@ -84,19 +89,21 @@ public class Aerolinea implements IAerolinea {
             throw new IllegalArgumentException("La longitud de precios y cantAsientos debe ser 2.");
         }
 
-        // Crear asiento
-        Map<Integer, String> asientos = new HashMap<>();
-        int numeroAsiento = 1;
-        
-        // Asientos de clase Turista
-        for (int i = 0; i < cantAsientos[0]; i++) {
-            asientos.put(numeroAsiento++, "Turista");
-        }
-        
-        // Asientos de clase Ejecutivo
-        for (int i = 0; i < cantAsientos[1]; i++) {
-            asientos.put(numeroAsiento++, "Ejecutivo");
-        }
+        // Crear los asientos, estructura: Map<Integer, Asiento> para cada clase
+    Map<Integer, Asiento> asientos = new HashMap<>();
+    int numeroAsiento = 1;
+
+    // Asientos de clase Turista
+    for (int i = 0; i < cantAsientos[0]; i++) {
+        Asiento asiento = new Asiento(numeroAsiento++, "Turista", true); // Asiento disponible por defecto
+        asientos.put(asiento.getNumero(), asiento);
+    }
+
+    // Asientos de clase Ejecutivo
+    for (int i = 0; i < cantAsientos[1]; i++) {
+        Asiento asiento = new Asiento(numeroAsiento++, "Ejecutivo", true); // Asiento disponible por defecto
+        asientos.put(asiento.getNumero(), asiento);
+    }
 
         // Crear el vuelo
         String codigoVuelo = numeroVueloPublico + "-PUB";
@@ -140,22 +147,25 @@ public class Aerolinea implements IAerolinea {
     }
 
     // Crear los asientos en el orden: Turista, Ejecutiva, Primera clase
-    Map<Integer, String> asientos = new HashMap<>();
+    Map<Integer, Asiento> asientos = new HashMap<>();
     int numeroAsiento = 1;
 
     // Asientos de clase Turista
     for (int i = 0; i < cantAsientos[0]; i++) {
-        asientos.put(numeroAsiento++, "Turista");
+        Asiento asiento = new Asiento(numeroAsiento++, "Turista", true); // Asiento disponible por defecto
+        asientos.put(asiento.getNumero(), asiento);
     }
 
     // Asientos de clase Ejecutiva
     for (int i = 0; i < cantAsientos[1]; i++) {
-        asientos.put(numeroAsiento++, "Ejecutiva");
+        Asiento asiento = new Asiento(numeroAsiento++, "Ejecutiva", true); // Asiento disponible por defecto
+        asientos.put(asiento.getNumero(), asiento);
     }
 
     // Asientos de Primera clase
     for (int i = 0; i < cantAsientos[2]; i++) {
-        asientos.put(numeroAsiento++, "Primera");
+        Asiento asiento = new Asiento(numeroAsiento++, "Primera", true); // Asiento disponible por defecto
+        asientos.put(asiento.getNumero(), asiento);
     }
 
 
@@ -174,29 +184,120 @@ public class Aerolinea implements IAerolinea {
 
 	@Override
 	public String VenderVueloPrivado(String origen, String destino, String fecha, int tripulantes, double precio,
-			int dniComprador, int[] acompaniantes) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'VenderVueloPrivado'");
-	}
+                                 int dniComprador, int[] acompaniantes) {
+    // Convertir la fecha de tipo String a Date
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    Date fechaSalida;
+    try {
+        fechaSalida = sdf.parse(fecha);
+    } catch (ParseException e) {
+        throw new IllegalArgumentException("Formato de fecha inválido. Use el formato yyyy-MM-dd.");
+    }
+
+    // Verificar que la fecha de salida sea posterior a la fecha actual
+    Date fechaActual = new Date();
+    if (fechaSalida.before(fechaActual)) {
+        throw new IllegalArgumentException("La fecha de salida debe ser posterior a la fecha actual.");
+    }
+
+    // Validación de origen y destino
+    if (origen == null || destino == null || origen.isEmpty() || destino.isEmpty()) {
+        throw new IllegalArgumentException("El aeropuerto de origen y destino no pueden estar vacíos.");
+    }
+
+    // Calcular la cantidad de jets necesarios
+    int totalPasajeros = 1 + acompaniantes.length;
+    int capacidadJet = 15;
+    int cantidadJets = (int) Math.ceil((double) totalPasajeros / capacidadJet);
+
+    // Calcular el costo total
+    double costoTotal = cantidadJets * precio;
+
+    // Generar el código de vuelo y actualizar el contador
+    String codigoVuelo = numeroVueloPrivado + "-PRI";
+    numeroVueloPrivado++;
+
+    return codigoVuelo;
+}
+
 
 	@Override
 	public Map<Integer, String> asientosDisponibles(String codVuelo) {
-		Map<Integer, String> losasientosDisponibles= new HashMap<>();
-		if(codVuelo==null) {
-			return losasientosDisponibles;
+		// Obtener el vuelo correspondiente al código de vuelo
+		Vuelo vuelo = vuelos.get(codVuelo);
+		if (vuelo == null) {
+			throw new IllegalArgumentException("Vuelo no encontrado con el código: " + codVuelo);
 		}
-		for(Vuelo vuelo:this.vuelos) {
-			if(vuelo.getCodigo().equals(codVuelo)) {
-				return vuelo.consultarAsientosDisponibles();
+	
+		// Obtener el mapa de asientos del vuelo
+		Map<Integer, Asiento> asientos = vuelo.getAsientos();
+		
+		// Crear el mapa para los asientos disponibles
+		Map<Integer, String> asientosDisponibles = new HashMap<>();
+	
+		// Recorrer los asientos y agregar los disponibles al mapa
+		for (Map.Entry<Integer, Asiento> entry : asientos.entrySet()) {
+			Asiento asiento = entry.getValue();
+			if (asiento.isDisponible()) {
+				// Agregar al mapa solo los asientos disponibles
+				asientosDisponibles.put(asiento.getNumero(), asiento.getSeccion());
 			}
 		}
+	
+		return asientosDisponibles;
 	}
+	
 
 	@Override
 	public int venderPasaje(int dni, String codVuelo, int nroAsiento, boolean aOcupar) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'venderPasaje'");
+		// Verificar que el vuelo exista
+		Vuelo vuelo = vuelos.get(codVuelo);
+		if (vuelo == null) {
+			throw new IllegalArgumentException("El vuelo no existe.");
+		}
+	
+		// Verificar que el pasajero esté registrado como cliente
+		Cliente cliente = clientes.get(dni);
+		if (cliente == null) {
+			throw new IllegalArgumentException("El pasajero debe estar registrado como cliente antes de realizar la compra.");
+		}
+	
+		// Verificar que el cliente no tenga ya un pasaje en el vuelo y asiento especificados
+		for (Pasaje pasaje : pasajes.values()) {
+			if (pasaje.getDni() == dni && pasaje.getVuelo().getCodigo().equals(codVuelo) && pasaje.getAsiento() == nroAsiento) {
+				throw new IllegalArgumentException("El cliente ya tiene un pasaje para este vuelo y asiento.");
+			}
+		}
+
+		// Verificar que el asiento esté disponible
+		Map<Integer, Asiento> asientos = vuelo.getAsientos(); // Obtener el mapa de asientos
+		Asiento asiento = asientos.get(nroAsiento); // Obtener el asiento con el número proporcionado
+		if (asiento == null || !asiento.isDisponible()) {
+			throw new IllegalArgumentException("El asiento no está disponible.");
+		}
+	
+		// Ocupar el asiento si es necesario
+		if (aOcupar) {
+			asiento.ocupar();
+		}
+	
+		// Generar un nuevo código de pasaje y crear el pasaje
+		int codigoPasaje = Pasaje.generarCodigo(); // Se genera un nuevo código usando el método estático
+		Pasaje pasaje = new Pasaje(dni, vuelo, nroAsiento);
+
+		// Registrar el pasaje en el cliente
+		cliente.agregarPasaje(pasaje);
+	
+		// Registrar el pasaje en el sistema
+		pasajes.put(codigoPasaje, pasaje);
+
+		// Agregar el pasajero al vuelo
+		vuelo.agregarPasajero(cliente); // Aquí agregas al cliente (pasajero) al vuelo
+	
+		return codigoPasaje; // Devolver el código del pasaje comprado
 	}
+	
+	
 
 	@Override
 	public List<String> consultarVuelosSimilares(String origen, String destino, String Fecha) {
@@ -212,9 +313,33 @@ public class Aerolinea implements IAerolinea {
 
 	@Override
 	public void cancelarPasaje(int dni, int codPasaje) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'cancelarPasaje'");
+		// Buscar el pasaje por el código de pasaje
+		Pasaje pasaje = pasajes.get(codPasaje);
+	
+		// Verificar si el pasaje no existe o si el DNI no coincide
+		if (pasaje == null || pasaje.getDni() != dni) {
+			throw new IllegalArgumentException("Pasaje no encontrado o el DNI no coincide.");
+		}
+	
+		// Eliminar el pasaje de la lista de pasajes
+		pasajes.remove(codPasaje);
+	
+		// Obtener el vuelo y el número de asiento del pasaje
+		Vuelo vuelo = pasaje.getVuelo();
+		int numeroAsiento = pasaje.getAsiento(); // Asumimos que getAsiento() devuelve el número de asiento
+	
+		// Liberar el asiento en el vuelo
+		Map<Integer, Asiento> asientos = vuelo.getAsientos(); // Obtenemos el mapa de asientos del vuelo
+		Asiento asiento = asientos.get(numeroAsiento); // Buscamos el asiento en el mapa de asientos
+	
+		if (asiento != null) {
+			// Liberamos el asiento (lo marcamos como disponible)
+			asiento.setDisponible(true);
+		} else {
+			throw new IllegalArgumentException("El asiento no existe en el vuelo.");
+		}
 	}
+	
 
 	@Override
 	public List<String> cancelarVuelo(String codVuelo) {
