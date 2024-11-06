@@ -15,15 +15,19 @@ public abstract class Vuelo {
 		private int tripulantes;
 		private List<Pasajero> pasajeros;
 		private Map<Integer, String> asientos;
+		private double valorRefrigerio;
+    	private double[] precios;
 		
 		
 		
-	public Vuelo (String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes) {
+	public Vuelo (String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes, double valorRefrigerio, double[] precios, Map<Integer, String> asientos) {
 		this.codigo = codigo;
 		this.fecha = fecha;
 		this.origen = origen;
         this.destino = destino;
 		this.tripulantes = tripulantes;
+		this.valorRefrigerio = valorRefrigerio;
+        this.precios = precios;
         this.pasajeros = new ArrayList<>();
         this.asientos = new HashMap<>();
 	}
