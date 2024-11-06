@@ -183,43 +183,51 @@ public class Aerolinea implements IAerolinea {
 }
 
 	@Override
-	public String VenderVueloPrivado(String origen, String destino, String fecha, int tripulantes, double precio,
-                                 int dniComprador, int[] acompaniantes) {
-    // Convertir la fecha de tipo String a Date
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Date fechaSalida;
-    try {
-        fechaSalida = sdf.parse(fecha);
-    } catch (ParseException e) {
-        throw new IllegalArgumentException("Formato de fecha inválido. Use el formato yyyy-MM-dd.");
-    }
-
-    // Verificar que la fecha de salida sea posterior a la fecha actual
-    Date fechaActual = new Date();
-    if (fechaSalida.before(fechaActual)) {
-        throw new IllegalArgumentException("La fecha de salida debe ser posterior a la fecha actual.");
-    }
-
-    // Validación de origen y destino
-    if (origen == null || destino == null || origen.isEmpty() || destino.isEmpty()) {
-        throw new IllegalArgumentException("El aeropuerto de origen y destino no pueden estar vacíos.");
-    }
-
-    // Calcular la cantidad de jets necesarios
-    int totalPasajeros = 1 + acompaniantes.length;
-    int capacidadJet = 15;
-    int cantidadJets = (int) Math.ceil((double) totalPasajeros / capacidadJet);
-
-    // Calcular el costo total
-    double costoTotal = cantidadJets * precio;
-
-    // Generar el código de vuelo y actualizar el contador
-    String codigoVuelo = numeroVueloPrivado + "-PRI";
-    numeroVueloPrivado++;
-
-    return codigoVuelo;
-}
-
+	public String VenderVueloPrivado(String origen, String destino, String fecha, int tripulantes, double precio, int dniComprador, int[] acompaniantes) {
+		try {
+			// Formato de fecha
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			Date fechaSalida = sdf.parse(fecha);
+	
+			// Verificación de fecha
+			if (fechaSalida.before(new Date())) {
+				throw new IllegalArgumentException("La fecha de salida debe ser posterior a la fecha actual.");
+			}
+	
+			// Obtener aeropuertos de origen y destino
+			Aeropuerto aeropuertoOrigen = Aeropuerto.obtenerAeropuertoPorNombre(origen, aeropuertos);
+			Aeropuerto aeropuertoDestino = Aeropuerto.obtenerAeropuertoPorNombre(destino, aeropuertos);
+			if (aeropuertoOrigen == null || aeropuertoDestino == null) {
+				throw new IllegalArgumentException("Aeropuerto de origen o destino no encontrado.");
+			}
+	
+			// Crear el comprador como cliente
+			Cliente clienteComprador = Cliente.obtenerClientePorDNI(dniComprador, clientes);
+			if (clienteComprador == null) {
+				throw new IllegalArgumentException("Cliente comprador no encontrado.");
+			}
+	
+			// Calcular cantidad de jets necesarios
+			int cantidadJets = (int) Math.ceil((double) (acompaniantes.length + 1) / tripulantes);
+			double costoTotal = cantidadJets * precio;
+	
+			// Generar código de vuelo
+			String codigoVuelo = numeroVueloPrivado + "-PRI";
+			numeroVueloPrivado++;
+	
+			// Crear vuelo privado
+			VueloPrivado vueloPrivado = new VueloPrivado(codigoVuelo, fechaSalida, aeropuertoOrigen, aeropuertoDestino, tripulantes, 0, new double[]{precio}, new HashMap<>(), clienteComprador, precio, cantidadJets, costoTotal);
+	
+			// Agregar vuelo a la lista de vuelos de la aerolínea
+			vuelos.put(codigoVuelo, vueloPrivado);
+	
+			return codigoVuelo;
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null; 
+		}
+	}
+	
 
 	@Override
 	public Map<Integer, String> asientosDisponibles(String codVuelo) {
@@ -305,11 +313,6 @@ public class Aerolinea implements IAerolinea {
 		throw new UnsupportedOperationException("Unimplemented method 'consultarVuelosSimilares'");
 	}
 
-	@Override
-	public void cancelarPasaje(int dni, String codVuelo, int nroAsiento) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'cancelarPasaje'");
-	}
 
 	@Override
 	public void cancelarPasaje(int dni, int codPasaje) {

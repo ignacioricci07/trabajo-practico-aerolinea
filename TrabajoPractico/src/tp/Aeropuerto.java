@@ -1,5 +1,8 @@
 package tp;
 
+
+import java.util.Map;
+
 public class Aeropuerto {
 
     String nombre;
@@ -14,6 +17,8 @@ public class Aeropuerto {
         this.direccion = direccion;
     }
 
-    
+    public static Aeropuerto obtenerAeropuertoPorNombre(String nombre, Map<String, Aeropuerto> aeropuertos) {
+    return aeropuertos.get(nombre); // Devuelve el aeropuerto o null si no se encuentra
+}
 
 }

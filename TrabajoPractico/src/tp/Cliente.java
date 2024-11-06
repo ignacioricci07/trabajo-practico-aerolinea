@@ -2,6 +2,7 @@ package tp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Cliente {
 
@@ -20,5 +21,10 @@ public class Cliente {
     public void agregarPasaje(Pasaje pasaje) {
         this.pasajes.add(pasaje);
     }
+
+    // Método estático para buscar un cliente por DNI en una lista de clientes
+    public static Cliente obtenerClientePorDNI(int dni, Map<Integer, Cliente> clientes) {
+    return clientes.get(dni); // Devuelve el cliente o null si no se encuentra
+}
 
 }

@@ -23,7 +23,8 @@ public abstract class Vuelo {
 		
 		
 		
-	public Vuelo (String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes, double valorRefrigerio, double[] precios, Map<Integer, Asiento> asientos) {
+	public Vuelo (String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes,
+	 double valorRefrigerio, double[] precios, Map<Integer, Asiento> asientos) {
 		this.codigo = codigo;
 		this.fecha = fecha;
 		this.origen = origen;
@@ -34,6 +35,7 @@ public abstract class Vuelo {
         this.pasajeros = new ArrayList<>();
         this.asientos = new HashMap<>();
 	}
+
 
 	public void agregarPasajero(Cliente cliente) {
         if (!pasajeros.contains(cliente)) {
