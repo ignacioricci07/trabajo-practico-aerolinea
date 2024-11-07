@@ -26,5 +26,17 @@ public class Cliente {
     public static Cliente obtenerClientePorDNI(int dni, Map<Integer, Cliente> clientes) {
     return clientes.get(dni); // Devuelve el cliente o null si no se encuentra
 }
+    
+    public int getDni() {
+    	return dni;
+    }
 
+    	public String getNombre() {
+    		return nombre;
+    	}
+    	
+    public String getTelefono() {
+    	return telefono;
+    }
+    	
 }

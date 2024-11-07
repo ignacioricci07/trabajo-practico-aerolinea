@@ -5,11 +5,13 @@ public class Asiento {
 	private int numero;
 	private boolean disponible;
 	private String seccion;
+	private Cliente pasajero;
 	
 	public Asiento(int numero, String seccion, boolean disponible) {
 		this.numero = numero;
 		this.seccion = seccion;
 		this.disponible = disponible;
+		this.pasajero = null;
 	}
 	
 	// Getters y setters
@@ -45,6 +47,10 @@ public class Asiento {
     // Método para ocupar el asiento
     public void ocupar() {
         this.disponible = false;
+    }
+    
+    public void setPasajero(Cliente pasajero) {
+    	this.pasajero = pasajero;
     }
 
     @Override

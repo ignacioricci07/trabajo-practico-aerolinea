@@ -21,4 +21,8 @@ public class Aeropuerto {
     return aeropuertos.get(nombre); // Devuelve el aeropuerto o null si no se encuentra
 }
 
+    public String getNombre() {
+    	return nombre;
+    }
+    
 }

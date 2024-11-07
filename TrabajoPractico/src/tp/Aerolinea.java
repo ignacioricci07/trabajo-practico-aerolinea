@@ -2,11 +2,11 @@ package tp;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Aerolinea implements IAerolinea {
@@ -308,10 +308,40 @@ public class Aerolinea implements IAerolinea {
 	
 
 	@Override
-	public List<String> consultarVuelosSimilares(String origen, String destino, String Fecha) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'consultarVuelosSimilares'");
-	}
+	public List<String> consultarVuelosSimilares(String origen, String destino, String fecha) {
+        List<String> vuelosSimilares = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+        try {
+            // Convertimos la fecha ingresada a Date
+            Date fechaBusqueda = dateFormat.parse(fecha);
+
+            // Calculamos la fecha límite, una semana después
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(fechaBusqueda);
+            calendar.add(Calendar.DAY_OF_YEAR, 7);
+            Date fechaLimite = calendar.getTime();
+
+            // Recorremos los vuelos en el mapa
+            for (Vuelo vuelo : vuelos.values()) {
+                // Verificamos que el origen y destino coincidan
+                if (vuelo.getOrigen().getNombre().equals(origen) &&
+                    vuelo.getDestino().getNombre().equals(destino)) {
+                    
+                    // Comprobamos si la fecha del vuelo está dentro del rango
+                    Date fechaVuelo = vuelo.getFecha();
+                    if (!fechaVuelo.before(fechaBusqueda) && !fechaVuelo.after(fechaLimite)) {
+                        vuelosSimilares.add(vuelo.getCodigo());
+                    }
+                }
+            }
+
+        } catch (ParseException e) {
+            System.out.println("Formato de fecha inválido. Usa 'dd/MM/yyyy'.");
+        }
+
+        return vuelosSimilares;
+    }
 
 
 	@Override
@@ -346,9 +376,52 @@ public class Aerolinea implements IAerolinea {
 
 	@Override
 	public List<String> cancelarVuelo(String codVuelo) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'cancelarVuelo'");
-	}
+        List<String> resultado = new ArrayList<>();
+
+        // Verificamos si el vuelo existe en el sistema
+        Vuelo vueloACancelar = vuelos.get(codVuelo);
+        if (vueloACancelar == null) {
+            System.out.println("El vuelo con código " + codVuelo + " no existe.");
+            return resultado;
+        }
+
+        // Obtenemos los pasajeros del vuelo a cancelar
+        List<Cliente> pasajeros = vueloACancelar.getPasajeros();
+
+        // Intentamos reprogramar a los pasajeros en vuelos alternativos
+        for (Cliente pasajero : pasajeros) {
+            boolean reprogramado = false;
+
+            for (Vuelo vueloAlternativo : vuelos.values()) {
+                // Verificamos si el vuelo alternativo tiene el mismo destino y es posterior
+                if (vueloAlternativo.getDestino().equals(vueloACancelar.getDestino())
+                        && vueloAlternativo.getFecha().after(vueloACancelar.getFecha())) {
+                    
+                    // Verificar si hay un asiento en la misma o mejor sección disponible
+                    for (Asiento asiento : vueloAlternativo.getAsientos().values()) {
+                        if (asiento.isDisponible() && asiento.getSeccion().equals("Misma o Mejor Sección")) { // Ajustar criterio de sección según lógica deseada
+                            asiento.setDisponible(false);
+                            asiento.setPasajero(pasajero);  // Asigna al pasajero al nuevo asiento
+                            reprogramado = true;
+                            resultado.add(pasajero.getDni() + " - " + pasajero.getNombre() + " - " + pasajero.getTelefono() + " - " + vueloAlternativo.getCodigo());
+                            break;
+                        }
+                    }
+                }
+                if (reprogramado) break;
+            }
+
+            // Si no se pudo reprogramar, registramos como CANCELADO
+            if (!reprogramado) {
+                resultado.add(pasajero.getDni() + " - " + pasajero.getNombre() + " - " + pasajero.getTelefono() + " - CANCELADO");
+            }
+        }
+
+        // Eliminamos el vuelo cancelado del mapa de vuelos
+        vuelos.remove(codVuelo);
+        
+        return resultado;
+    }
 
 	@Override
 	public double totalRecaudado(String destino) {
@@ -360,6 +433,12 @@ public class Aerolinea implements IAerolinea {
 	public String detalleDeVuelo(String codVuelo) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'detalleDeVuelo'");
+	}
+
+	@Override
+	public void cancelarPasaje(int dni, String codVuelo, int nroAsiento) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

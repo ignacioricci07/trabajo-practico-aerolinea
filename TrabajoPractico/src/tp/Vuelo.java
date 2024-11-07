@@ -55,6 +55,18 @@ public abstract class Vuelo {
         return asientos;
     }
 
+	public Aeropuerto getOrigen() {
+		return origen;
+	}
+	
+	public Aeropuerto getDestino() {
+		return destino;
+	}
+	
+	public Date getFecha() {
+		return fecha;
+	}
+	
 	@Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
