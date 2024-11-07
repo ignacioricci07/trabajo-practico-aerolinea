@@ -67,6 +67,14 @@ public abstract class Vuelo {
 		return fecha;
 	}
 	
+	public double calcularRecaudacion() {
+        double total = 0;
+        for (double precio : precios) {
+            total += precio; // Sumar el precio de cada asiento/clase
+        }
+        return total;
+	}
+	
 	@Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");

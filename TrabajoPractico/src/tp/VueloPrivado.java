@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class VueloPrivado extends Vuelo {
     
-    Cliente clienteComprador;
-    double precioPorJet;
-    int cantidadJets;
+	private Cliente clienteComprador;
+	private double precioPorJet;
+	private int cantidadJets;
     private double costoTotal;
 
     public VueloPrivado(String codigo, Date fecha, Aeropuerto origen, Aeropuerto destino,  int tripulantes,
@@ -18,6 +18,11 @@ public class VueloPrivado extends Vuelo {
         this.cantidadJets = cantidadJets;
         this.costoTotal = costoTotal;
     }
+
+	public int getCantidadJets() {
+		// TODO Auto-generated method stub
+		return cantidadJets;
+	}
 
 
 

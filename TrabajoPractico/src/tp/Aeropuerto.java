@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class Aeropuerto {
 
-    String nombre;
-    String pais;
-    String provincia;
-    String direccion;
+    private String nombre;
+    private String pais;
+    private String provincia;
+    private String direccion;
 
     public Aeropuerto(String nombre, String pais, String provincia, String direccion){
         this.nombre = nombre;
@@ -24,5 +24,10 @@ public class Aeropuerto {
     public String getNombre() {
     	return nombre;
     }
+
+	public String getPais() {
+		// TODO Auto-generated method stub
+		return pais;
+	}
     
 }

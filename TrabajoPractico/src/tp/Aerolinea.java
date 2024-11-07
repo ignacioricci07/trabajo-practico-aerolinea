@@ -20,6 +20,7 @@ public class Aerolinea implements IAerolinea {
 	private int numeroVueloInternacional;
 	private int numeroVueloPrivado;
 	private Map<Integer, Pasaje> pasajes = new HashMap<>();
+	private Map<String, Double> recaudacionPorDestino;
 	
 
 	
@@ -68,7 +69,7 @@ public class Aerolinea implements IAerolinea {
         if (aeropuertoOrigen == null || aeropuertoDestino == null) {
             throw new IllegalArgumentException("Origen o destino no registrado en la aerolínea.");
         }
-        if (!"Argentina".equalsIgnoreCase(aeropuertoOrigen.pais) || !"Argentina".equalsIgnoreCase(aeropuertoDestino.pais)) {
+        if (!"Argentina".equalsIgnoreCase(aeropuertoOrigen.getPais()) || !"Argentina".equalsIgnoreCase(aeropuertoDestino.getPais())) {
             throw new IllegalArgumentException("El origen y destino deben estar en Argentina.");
         }
 
@@ -425,15 +426,41 @@ public class Aerolinea implements IAerolinea {
 
 	@Override
 	public double totalRecaudado(String destino) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'totalRecaudado'");
-	}
+        return recaudacionPorDestino.getOrDefault(destino, 0.0); // Devuelve 0.0 si no hay recaudación para ese destino
+    }
 
 	@Override
 	public String detalleDeVuelo(String codVuelo) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'detalleDeVuelo'");
-	}
+		Vuelo vuelo = vuelos.get(codVuelo); // vuelos es el Map que contiene los vuelos
+
+		if (vuelo == null) {
+			return "Vuelo no encontrado";
+		}
+
+		// Obtenemos los datos necesarios
+	    String aeropuertoSalida = vuelo.getOrigen().getNombre(); // '
+        String aeropuertoLlegada = vuelo.getDestino().getNombre();
+			
+		Date fechaSalida = vuelo.getFecha(); // Asumimos que 'getFechaSalida()' devuelve un objeto Date
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy"); // Formato de fecha deseado
+		String fechaFormateada = sdf.format(fechaSalida);
+		String tipoVuelo;
+		
+		// Determinamos el tipo de vuelo
+		if (vuelo instanceof VueloNacional) {
+ 			  tipoVuelo = "NACIONAL";
+		} else if (vuelo instanceof VueloInternacional) {
+			tipoVuelo = "INTERNACIONAL";
+		} else if (vuelo instanceof VueloPrivado) {
+			int cantidadJets = ((VueloPrivado) vuelo).getCantidadJets();
+			tipoVuelo = "PRIVADO (" + cantidadJets + ")";
+		} else {
+			tipoVuelo = "DESCONOCIDO";
+		}
+
+		// Formateamos y devolvemos el detalle del vuelo
+		return codVuelo + " - " + aeropuertoSalida + " - " + aeropuertoLlegada + " - " + fechaFormateada + " - " + tipoVuelo;
+}
 
 	@Override
 	public void cancelarPasaje(int dni, String codVuelo, int nroAsiento) {

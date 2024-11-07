@@ -6,10 +6,10 @@ import java.util.Map;
 
 public class Cliente {
 
-    int dni;
-    String nombre;
-    String telefono;
-    private List<Pasaje> pasajes; // Pasajes del cliente
+	private int dni;
+	private String nombre;
+	private String telefono;
+	private List<Pasaje> pasajes; // Pasajes del cliente
 
     public Cliente(int dni, String nombre, String telefono){
         this.dni = dni;
